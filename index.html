@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UH Mālama Resources | University of Hawaiʻi Resource Planning Platform</title>
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+<style>
+  :root, [data-theme="light"] {
+    --uh-green: #005A3C;
+    --uh-green-light: #00704A;
+    --uh-teal: #007887;
+    --uh-teal-light: #2DA5A5;
+    --uh-gold: #C4A35A;
+    --bg: #f4f6f8;
+    --bg-elevated: #ffffff;
+    --card: #ffffff;
+    --text: #1a1a1a;
+    --text-secondary: #3d4a5c;
+    --muted: #5a6a7a;
+    --border: #e2e8f0;
+    --sidebar-bg: #005A3C;
+    --sidebar-text: rgba(255,255,255,0.88);
+    --sidebar-text-active: #ffffff;
+    --sidebar-hover: rgba(255,255,255,0.12);
+    --sidebar-active: rgba(255,255,255,0.20);
+    --topbar-bg: #ffffff;
+    --controls-bg: #f8fafc;
+    --table-header: #f8fafc;
+    --row-hover: #f8fafc;
+    --note-bg: #eff6ff;
+    --note-border: #2563eb;
+    --note-text: #1e3a5f;
+    --success: #0d9488;
+    --warning: #d97706;
+    --danger: #dc2626;
+    --info: #2563eb;
+    --shadow: 0 1px 3px rgba(0,0,0,0.06);
+    --badge-poc-bg: #fef3c7;
+    --badge-poc-text: #92400e;
+    --tag-bg: #e0f2fe;
+    --tag-text: #0369a1;
+    --input-bg: #ffffff;
+    --kpi-value: #005A3C;
+    --tree-indent: #cbd5e1;
+    --tree-btn: #e2e8f0;
+    --tree-btn-hover: #cbd5e1;
+    --level-system: #005A3C;
+    --level-campus: #007887;
+    --level-college: #0d9488;
+    --level-dept: #64748b;
+  }
+  [data-theme="dark"] {
+    --uh-green: #1a9b6c;
+    --uh-green-light: #24b87f;
+    --uh-teal: #2bb3c4;
+    --uh-teal-light: #4ecfd0;
+    --uh-gold: #d4b56a;
+    --bg: #0f1419;
+    --bg-elevated: #1a222d;
+    --card: #1a222d;
+    --text: #e8eef4;
+    --text-secondary: #b0bec5;
+    --muted: #8a9ba8;
+    --border: #2a3544;
+    --sidebar-bg: #0a1612;
+    --sidebar-text: rgba(232,238,244,0.82);
+    --sidebar-text-active: #ffffff;
+    --sidebar-hover: rgba(43,179,196,0.12);
+    --sidebar-active: rgba(43,179,196,0.22);
+    --topbar-bg: #1a222d;
+    --controls-bg: #141c26;
+    --table-header: #141c26;
+    --row-hover: #222b38;
+    --note-bg: #132032;
+    --note-border: #2bb3c4;
+    --note-text: #b8d4e8;
+    --success: #2dd4bf;
+    --warning: #fbbf24;
+    --danger: #f87171;
+    --info: #60a5fa;
+    --shadow: 0 1px 4px rgba(0,0,0,0.35);
+    --badge-poc-bg: #3d2e0a;
+    --badge-poc-text: #fbbf24;
+    --tag-bg: #1a3344;
+    --tag-text: #7dd3fc;
+    --input-bg: #141c26;
+    --kpi-value: #2bb3c4;
+    --tree-indent: #3a4555;
+    --tree-btn: #2a3544;
+    --tree-btn-hover: #3a4555;
+    --level-system: #2bb3c4;
+    --level-campus: #4ecfd0;
+    --level-college: #5eead4;
+    --level-dept: #94a3b8;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    display: flex;
+    min-height: 100vh;
+    transition: background 0.25s ease, color 0.25s ease;
+  }
+  .sidebar {
+    width: 270px;
+    background: var(--sidebar-bg);
+    color: white;
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    height: 100vh;
+    z-index: 100;
+  }
+  .brand {
+    padding: 1.15rem 1.1rem 1.05rem;
+    border-bottom: 1px solid rgba(255,255,255,0.12);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .brand-logo { width: 48px; height: 40px; flex-shrink: 0; }
+  .brand-logo svg { width: 100%; height: 100%; display: block; }
+  .brand-text h1 { font-size: 0.98rem; font-weight: 700; line-height: 1.2; color: #fff; }
+  .brand-text .sub { font-size: 0.65rem; opacity: 0.72; margin-top: 0.2rem; line-height: 1.3; color: rgba(255,255,255,0.85); }
+  .nav { flex: 1; padding: 0.9rem 0.7rem; overflow-y: auto; }
+  .nav-item {
+    display: flex; align-items: center; gap: 0.7rem;
+    padding: 0.68rem 0.85rem; border-radius: 8px; cursor: pointer;
+    font-size: 0.88rem; margin-bottom: 0.2rem;
+    transition: background 0.15s; color: var(--sidebar-text); user-select: none;
+  }
+  .nav-item:hover { background: var(--sidebar-hover); }
+  .nav-item.active { background: var(--sidebar-active); color: var(--sidebar-text-active); font-weight: 600; }
+  .nav-item .icon { width: 20px; text-align: center; font-size: 1.05rem; }
+  .sidebar-footer {
+    padding: 0.9rem 1.1rem; font-size: 0.68rem; opacity: 0.65;
+    border-top: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.8); line-height: 1.4;
+  }
+  .main { margin-left: 270px; flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+  .topbar {
+    background: var(--topbar-bg); border-bottom: 1px solid var(--border);
+    padding: 0.85rem 1.6rem; display: flex; justify-content: space-between; align-items: center;
+    position: sticky; top: 0; z-index: 50;
+  }
+  .topbar h2 { font-size: 1.2rem; font-weight: 650; color: var(--text); }
+  .topbar .meta { display: flex; gap: 0.9rem; align-items: center; font-size: 0.82rem; color: var(--muted); }
+  .badge { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.22rem 0.6rem; border-radius: 999px; font-size: 0.72rem; font-weight: 600; }
+  .badge-poc { background: var(--badge-poc-bg); color: var(--badge-poc-text); }
+  .theme-toggle {
+    display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.4rem 0.75rem;
+    border-radius: 8px; border: 1px solid var(--border); background: var(--card);
+    color: var(--text); font-size: 0.8rem; font-weight: 600; cursor: pointer;
+  }
+  .theme-toggle:hover { border-color: var(--uh-teal); color: var(--uh-teal); }
+  .content { padding: 1.4rem 1.6rem 2.2rem; flex: 1; }
+  .view { display: none; }
+  .view.active { display: block; }
+  .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 0.95rem; margin-bottom: 1.35rem; }
+  .kpi {
+    background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+    padding: 1.05rem 1.15rem; box-shadow: var(--shadow);
+  }
+  .kpi .label { font-size: 0.74rem; color: var(--muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.04em; }
+  .kpi .value { font-size: 1.45rem; font-weight: 700; margin-top: 0.3rem; color: var(--kpi-value); }
+  .kpi .delta { font-size: 0.78rem; margin-top: 0.25rem; color: var(--muted); }
+  .delta.up { color: var(--success); }
+  .delta.down { color: var(--danger); }
+  .card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+    padding: 1.15rem 1.3rem; margin-bottom: 1.15rem; box-shadow: var(--shadow);
+  }
+  .card h3 {
+    font-size: 1.02rem; font-weight: 650; margin-bottom: 0.85rem;
+    display: flex; justify-content: space-between; align-items: center; color: var(--text);
+  }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.15rem; }
+  @media (max-width: 1100px) { .grid-2 { grid-template-columns: 1fr; } }
+  table { width: 100%; border-collapse: collapse; font-size: 0.86rem; }
+  th {
+    text-align: left; padding: 0.55rem 0.7rem; background: var(--table-header);
+    border-bottom: 2px solid var(--border); font-weight: 600; color: var(--muted);
+    font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.03em;
+  }
+  td { padding: 0.55rem 0.7rem; border-bottom: 1px solid var(--border); color: var(--text); }
+  tr:hover td { background: var(--row-hover); }
+  .num { text-align: right; font-variant-numeric: tabular-nums; }
+  .scenario-panel { display: grid; grid-template-columns: 280px 1fr; gap: 1.35rem; }
+  @media (max-width: 1000px) { .scenario-panel { grid-template-columns: 1fr; } }
+  .controls { background: var(--controls-bg); border-radius: 10px; padding: 1.05rem; border: 1px solid var(--border); }
+  .controls h3 { color: var(--text); margin-bottom: 1rem; font-size: 1rem; }
+  .control-group { margin-bottom: 1.05rem; }
+  .control-group label { display: block; font-size: 0.78rem; font-weight: 600; margin-bottom: 0.3rem; color: var(--muted); }
+  .control-group input[type="range"] { width: 100%; accent-color: var(--uh-teal); }
+  .control-group .val { font-size: 0.92rem; font-weight: 700; color: var(--uh-teal); margin-top: 0.15rem; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.5rem 0.95rem;
+    border-radius: 8px; border: none; font-size: 0.84rem; font-weight: 600; cursor: pointer;
+  }
+  .btn-primary { background: var(--uh-teal); color: white; }
+  .btn-primary:hover { filter: brightness(1.1); }
+  .btn-secondary { background: var(--card); border: 1px solid var(--border); color: var(--text); }
+  .btn-secondary:hover { border-color: var(--uh-teal); color: var(--uh-teal); }
+  .btn-sm { padding: 0.35rem 0.65rem; font-size: 0.78rem; }
+  .status { display: inline-block; padding: 0.18rem 0.5rem; border-radius: 6px; font-size: 0.72rem; font-weight: 600; }
+  .status-pending { background: #fef3c7; color: #92400e; }
+  .status-approved { background: #d1fae5; color: #065f46; }
+  .status-draft { background: #e2e8f0; color: #475569; }
+  .status-review { background: #dbeafe; color: #1e40af; }
+  [data-theme="dark"] .status-pending { background: #3d2e0a; color: #fbbf24; }
+  [data-theme="dark"] .status-approved { background: #0f3d32; color: #5eead4; }
+  [data-theme="dark"] .status-draft { background: #2a3544; color: #94a3b8; }
+  [data-theme="dark"] .status-review { background: #1e3a5f; color: #93c5fd; }
+  .priority-high { color: var(--danger); font-weight: 700; }
+  .priority-medium { color: var(--warning); }
+  .priority-low { color: var(--muted); }
+  .note {
+    background: var(--note-bg); border-left: 4px solid var(--note-border);
+    padding: 0.8rem 0.95rem; border-radius: 0 8px 8px 0;
+    font-size: 0.84rem; color: var(--note-text); margin-bottom: 1.15rem;
+  }
+  .note strong { color: var(--uh-teal); }
+  .footer-note {
+    margin-top: 1.75rem; padding: 0.95rem; background: var(--controls-bg);
+    border: 1px solid var(--border); border-radius: 8px; font-size: 0.78rem;
+    color: var(--muted); text-align: center;
+  }
+  .chart-container { width: 100%; height: 340px; }
+  .chart-sm { height: 280px; }
+  select {
+    padding: 0.42rem 0.65rem; border: 1px solid var(--border); border-radius: 6px;
+    font-size: 0.86rem; background: var(--input-bg); color: var(--text);
+  }
+  .filter-bar {
+    display: flex; gap: 0.7rem; margin-bottom: 0.95rem; flex-wrap: wrap;
+    align-items: center; color: var(--muted); font-size: 0.86rem;
+  }
+  .tag {
+    display: inline-block; padding: 0.12rem 0.48rem; background: var(--tag-bg);
+    color: var(--tag-text); border-radius: 4px; font-size: 0.72rem; font-weight: 600;
+  }
+
+  /* Hierarchy tree table */
+  .tree-toolbar {
+    display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.85rem; align-items: center;
+  }
+  .level-legend {
+    display: flex; gap: 0.75rem; flex-wrap: wrap; margin-left: auto; font-size: 0.75rem; color: var(--muted);
+  }
+  .level-legend span { display: inline-flex; align-items: center; gap: 0.3rem; }
+  .level-dot {
+    width: 8px; height: 8px; border-radius: 50%; display: inline-block;
+  }
+  .tree-table { font-size: 0.84rem; }
+  .tree-table th { position: sticky; top: 0; z-index: 2; }
+  .tree-name-cell {
+    display: flex; align-items: center; gap: 0.35rem;
+    min-width: 280px;
+  }
+  .tree-toggle {
+    width: 22px; height: 22px; border-radius: 4px; border: 1px solid var(--border);
+    background: var(--tree-btn); color: var(--text); cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 0.7rem; font-weight: 700; flex-shrink: 0; line-height: 1;
+  }
+  .tree-toggle:hover { background: var(--tree-btn-hover); }
+  .tree-toggle.placeholder {
+    visibility: hidden; pointer-events: none;
+  }
+  .tree-indent {
+    display: inline-block; width: 18px; flex-shrink: 0;
+  }
+  .tree-row-system { font-weight: 700; background: rgba(0,90,60,0.06); }
+  .tree-row-campus { font-weight: 650; }
+  .tree-row-college { font-weight: 550; }
+  .tree-row-dept { font-weight: 400; color: var(--text-secondary); }
+  [data-theme="dark"] .tree-row-system { background: rgba(43,179,196,0.08); }
+  .level-badge {
+    font-size: 0.65rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.04em; padding: 0.1rem 0.4rem; border-radius: 4px;
+    background: var(--controls-bg); color: var(--muted); margin-left: 0.35rem;
+  }
+  .level-badge.l0 { color: var(--level-system); border: 1px solid var(--level-system); }
+  .level-badge.l1 { color: var(--level-campus); border: 1px solid var(--level-campus); }
+  .level-badge.l2 { color: var(--level-college); border: 1px solid var(--level-college); }
+  .level-badge.l3 { color: var(--level-dept); border: 1px solid var(--level-dept); }
+  .breadcrumb {
+    display: flex; flex-wrap: wrap; gap: 0.25rem; align-items: center;
+    font-size: 0.82rem; margin-bottom: 0.85rem; color: var(--muted);
+  }
+  .breadcrumb button {
+    background: none; border: none; color: var(--uh-teal); cursor: pointer;
+    font-size: 0.82rem; font-weight: 600; padding: 0.15rem 0.3rem; border-radius: 4px;
+  }
+  .breadcrumb button:hover { background: var(--controls-bg); }
+  .breadcrumb .sep { opacity: 0.5; }
+  .breadcrumb .current { color: var(--text); font-weight: 650; }
+  .focus-panel {
+    border: 1px solid var(--border); border-radius: 10px; padding: 0.85rem 1rem;
+    background: var(--controls-bg); margin-bottom: 1rem;
+  }
+  .focus-panel h4 { font-size: 0.95rem; margin-bottom: 0.5rem; color: var(--text); }
+  .focus-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 0.6rem; }
+  .focus-kpis .fk { font-size: 0.78rem; color: var(--muted); }
+  .focus-kpis .fk strong { display: block; font-size: 1.05rem; color: var(--kpi-value); margin-top: 0.15rem; }
+</style>
+</head>
+<body data-theme="light">
+
+<aside class="sidebar">
+  <div class="brand">
+    <div class="brand-logo"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 100" fill="none" aria-hidden="true">
+  <path d="M8 78 C18 62, 32 58, 48 62 C52 64, 56 64, 60 62 C76 58, 90 62, 100 78 C92 88, 78 92, 60 88 C56 87, 52 87, 48 88 C30 92, 16 88, 8 78Z" fill="#005A3C"/>
+  <path d="M12 76 C20 66, 34 62, 48 66 C52 67, 56 67, 60 66 C74 62, 88 66, 96 76 C90 84, 78 86, 60 84 C56 83, 52 83, 48 84 C30 86, 18 84, 12 76Z" fill="#00704A"/>
+  <path d="M54 8 C54 8, 22 38, 22 58 C22 74, 36 86, 54 86 C72 86, 86 74, 86 58 C86 38, 54 8, 54 8Z" fill="#007887"/>
+  <path d="M54 78 L54 28" stroke="white" stroke-width="3.2" stroke-linecap="round"/>
+  <path d="M54 48 L38 36" stroke="white" stroke-width="2.6" stroke-linecap="round"/>
+  <path d="M54 48 L70 36" stroke="white" stroke-width="2.6" stroke-linecap="round"/>
+  <path d="M54 62 L40 52" stroke="white" stroke-width="2.2" stroke-linecap="round"/>
+  <path d="M54 62 L68 52" stroke="white" stroke-width="2.2" stroke-linecap="round"/>
+</svg></div>
+    <div class="brand-text">
+      <h1>UH Mālama Resources</h1>
+      <div class="sub">University of Hawaiʻi<br>Resource Planning Platform</div>
+    </div>
+  </div>
+  <nav class="nav">
+    <div class="nav-item active" data-view="dashboard"><span class="icon">📊</span> Executive Dashboard</div>
+    <div class="nav-item" data-view="budget"><span class="icon">💰</span> Budget Explorer</div>
+    <div class="nav-item" data-view="scenario"><span class="icon">🔀</span> Scenario Modeling</div>
+    <div class="nav-item" data-view="labor"><span class="icon">👥</span> Labor Planning</div>
+    <div class="nav-item" data-view="workflow"><span class="icon">📋</span> Workflow Queue</div>
+    <div class="nav-item" data-view="integration"><span class="icon">🔗</span> Integration Status</div>
+  </nav>
+  <div class="sidebar-footer">
+    RFP No. 27-6284 · Proof of Concept<br>
+    Stewardship through insight
+  </div>
+</aside>
+
+<div class="main">
+  <header class="topbar">
+    <h2 id="view-title">Executive Dashboard</h2>
+    <div class="meta">
+      <button type="button" class="theme-toggle" id="theme-toggle" title="Toggle light / dark theme">
+        <span class="theme-icon" id="theme-icon">🌙</span>
+        <span id="theme-label">Dark</span>
+      </button>
+      <span class="badge badge-poc">● PROOF OF CONCEPT</span>
+      <span>FY 2026–2031 Planning Cycle</span>
+      <span>User: System Budget Office</span>
+    </div>
+  </header>
+
+  <div class="content">
+
+    <div id="view-dashboard" class="view active">
+      <div class="note">
+        <strong>POC Demonstration:</strong> System-wide financial health, multi-year outlook, and campus roll-ups. In production these figures would refresh from KFS actuals and live position data.
+      </div>
+      <div class="kpi-grid">
+        <div class="kpi"><div class="label">Total Working Budget</div><div class="value" id="kpi-total-budget">—</div><div class="delta up">▲ 3.2% vs prior year</div></div>
+        <div class="kpi"><div class="label">State General Funds</div><div class="value" id="kpi-state">—</div><div class="delta up">▲ 2.1%</div></div>
+        <div class="kpi"><div class="label">Tuition &amp; Fees</div><div class="value" id="kpi-tuition">—</div><div class="delta down">▼ 0.8%</div></div>
+        <div class="kpi"><div class="label">Research / Extramural</div><div class="value" id="kpi-research">—</div><div class="delta up">▲ 5.4%</div></div>
+        <div class="kpi"><div class="label">Personnel Costs</div><div class="value" id="kpi-personnel">—</div><div class="delta">68% of total</div></div>
+        <div class="kpi"><div class="label">Composite Financial Index</div><div class="value">2.84</div><div class="delta up">Healthy range (&gt;3.0 target)</div></div>
+      </div>
+      <div class="grid-2">
+        <div class="card"><h3>Revenue by Source <span class="tag">Systemwide</span></h3><div id="chart-rev-source" class="chart-container chart-sm"></div></div>
+        <div class="card"><h3>Budget by Campus (Top 6)</h3><div id="chart-campus-budget" class="chart-container chart-sm"></div></div>
+      </div>
+      <div class="card"><h3>Six-Year Financial Outlook (Working Scenario)</h3><div id="chart-multi-year" class="chart-container"></div></div>
+    </div>
+
+    <div id="view-budget" class="view">
+      <div class="note">
+        <strong>POC Demonstration:</strong> Multi-level org hierarchy with roll-up and drill-down —
+        <em>System → Campus → College/School → Department</em>. Expand rows or use breadcrumb to navigate. Totals at each parent equal the sum of children (KFS-style structure).
+      </div>
+
+      <div class="breadcrumb" id="tree-breadcrumb"></div>
+
+      <div class="focus-panel" id="focus-panel">
+        <h4 id="focus-name">—</h4>
+        <div class="focus-kpis" id="focus-kpis"></div>
+      </div>
+
+      <div class="tree-toolbar">
+        <button type="button" class="btn btn-secondary btn-sm" id="btn-expand-all">Expand All</button>
+        <button type="button" class="btn btn-secondary btn-sm" id="btn-collapse-all">Collapse to Campuses</button>
+        <button type="button" class="btn btn-secondary btn-sm" id="btn-expand-colleges">Expand to Colleges</button>
+        <div class="level-legend">
+          <span><span class="level-dot" style="background:var(--level-system)"></span> System</span>
+          <span><span class="level-dot" style="background:var(--level-campus)"></span> Campus</span>
+          <span><span class="level-dot" style="background:var(--level-college)"></span> College</span>
+          <span><span class="level-dot" style="background:var(--level-dept)"></span> Department</span>
+        </div>
+      </div>
+
+      <div class="card" style="padding:0; overflow:hidden;">
+        <div style="overflow:auto; max-height:520px;">
+          <table class="tree-table" id="hierarchy-table">
+            <thead>
+              <tr>
+                <th style="min-width:300px">Organization</th>
+                <th class="num">State</th>
+                <th class="num">Tuition</th>
+                <th class="num">Research</th>
+                <th class="num">Other</th>
+                <th class="num">Total Rev</th>
+                <th class="num">Personnel</th>
+                <th class="num">Operating</th>
+                <th class="num">Capital</th>
+                <th class="num">Total Exp</th>
+              </tr>
+            </thead>
+            <tbody id="hierarchy-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card"><h3>Selected Node — Revenue vs Expense Composition</h3><div id="chart-hierarchy" class="chart-container"></div></div>
+    </div>
+
+    <div id="view-scenario" class="view">
+      <div class="note">
+        <strong>POC Demonstration:</strong> Interactive what-if modeling. Adjust key drivers and immediately see impact on multi-year projections.
+      </div>
+      <div class="scenario-panel">
+        <div class="controls">
+          <h3>Scenario Drivers</h3>
+          <div class="control-group"><label>Enrollment Growth (Annual)</label><input type="range" id="drv-enroll" min="-5" max="8" step="0.5" value="1.5"><div class="val"><span id="val-enroll">1.5</span>%</div></div>
+          <div class="control-group"><label>Tuition Rate Increase</label><input type="range" id="drv-tuition" min="0" max="8" step="0.5" value="2.5"><div class="val"><span id="val-tuition">2.5</span>%</div></div>
+          <div class="control-group"><label>State Funding Change</label><input type="range" id="drv-state" min="-5" max="6" step="0.5" value="1.5"><div class="val"><span id="val-state">1.5</span>%</div></div>
+          <div class="control-group"><label>Fringe Benefit Rate</label><input type="range" id="drv-fringe" min="35" max="55" step="0.5" value="41.5"><div class="val"><span id="val-fringe">41.5</span>%</div></div>
+          <div class="control-group"><label>Personnel Cost Growth</label><input type="range" id="drv-personnel" min="0" max="6" step="0.25" value="2.75"><div class="val"><span id="val-personnel">2.75</span>%</div></div>
+          <div class="control-group"><label>Operating Cost Growth</label><input type="range" id="drv-operating" min="0" max="6" step="0.25" value="2.0"><div class="val"><span id="val-operating">2.0</span>%</div></div>
+          <button class="btn btn-primary" style="width:100%;margin-top:0.5rem" id="btn-reset">Reset to Baseline</button>
+          <button class="btn btn-secondary" style="width:100%;margin-top:0.5rem" id="btn-save">Save Scenario Snapshot</button>
+        </div>
+        <div>
+          <div class="kpi-grid" style="grid-template-columns: repeat(3,1fr)">
+            <div class="kpi"><div class="label">FY2031 Projected Revenue</div><div class="value" id="scen-rev">—</div></div>
+            <div class="kpi"><div class="label">FY2031 Projected Expense</div><div class="value" id="scen-exp">—</div></div>
+            <div class="kpi"><div class="label">FY2031 Surplus / (Gap)</div><div class="value" id="scen-gap">—</div></div>
+          </div>
+          <div class="card"><h3>Multi-Year Projection under Current Assumptions</h3><div id="chart-scenario" class="chart-container"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="view-labor" class="view">
+      <div class="note"><strong>POC Demonstration:</strong> Position-level labor planning integrated with PeopleSoft concepts.</div>
+      <div class="kpi-grid">
+        <div class="kpi"><div class="label">Sample Positions Shown</div><div class="value">14</div></div>
+        <div class="kpi"><div class="label">Total Salary (Sample)</div><div class="value" id="labor-salary">—</div></div>
+        <div class="kpi"><div class="label">Total Fringe (Sample)</div><div class="value" id="labor-fringe">—</div></div>
+        <div class="kpi"><div class="label">Total Compensation</div><div class="value" id="labor-total">—</div></div>
+      </div>
+      <div class="card">
+        <h3>Position Roster (Sample Extract)</h3>
+        <div style="overflow-x:auto">
+          <table id="labor-table">
+            <thead><tr>
+              <th>Campus</th><th>Department</th><th>Title</th><th class="num">FTE</th>
+              <th class="num">Salary</th><th class="num">Fringe Rate</th>
+              <th class="num">Fringe $</th><th class="num">Total Comp</th><th>Fund</th>
+            </tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div id="view-workflow" class="view">
+      <div class="note"><strong>POC Demonstration:</strong> Configurable approval workflows with status tracking and campus/system routing.</div>
+      <div class="kpi-grid">
+        <div class="kpi"><div class="label">Open Requests</div><div class="value">6</div></div>
+        <div class="kpi"><div class="label">Pending Campus Review</div><div class="value">2</div></div>
+        <div class="kpi"><div class="label">Pending System Review</div><div class="value">2</div></div>
+        <div class="kpi"><div class="label">Approved (This Cycle)</div><div class="value">1</div></div>
+      </div>
+      <div class="card">
+        <h3>Active Budget Requests</h3>
+        <div style="overflow-x:auto">
+          <table id="workflow-table">
+            <thead><tr>
+              <th>Request ID</th><th>Campus</th><th>Department</th><th>Type</th>
+              <th class="num">Amount</th><th>Status</th><th>Submitted</th><th>Priority</th>
+            </tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div id="view-integration" class="view">
+      <div class="note"><strong>POC Demonstration:</strong> Conceptual connections to Kuali Financial System (KFS) and Oracle PeopleSoft.</div>
+      <div class="grid-2">
+        <div class="card">
+          <h3>Kuali Financial System (KFS)</h3>
+          <table>
+            <tr><td>Connection Status</td><td><span class="status status-approved">● Connected (Simulated)</span></td></tr>
+            <tr><td>Last Actuals Sync</td><td>2026-11-12 23:15 HST</td></tr>
+            <tr><td>Chart of Accounts</td><td>Loaded – 4,812 active accounts</td></tr>
+            <tr><td>Org Hierarchy</td><td>Synced – System → Campus → College → Dept</td></tr>
+            <tr><td>Fund Types</td><td>General, Tuition, Research, Auxiliary, Restricted</td></tr>
+            <tr><td>Integration Method</td><td>API + nightly flat-file (preferred)</td></tr>
+          </table>
+        </div>
+        <div class="card">
+          <h3>Oracle PeopleSoft (HR / Position)</h3>
+          <table>
+            <tr><td>Connection Status</td><td><span class="status status-approved">● Connected (Simulated)</span></td></tr>
+            <tr><td>Last Position Sync</td><td>2026-11-12 22:40 HST</td></tr>
+            <tr><td>Active Positions</td><td>~9,850 FTE records</td></tr>
+            <tr><td>Salary Structures</td><td>Loaded</td></tr>
+            <tr><td>Benefit / Fringe Tables</td><td>Synced</td></tr>
+            <tr><td>Integration Method</td><td>Secure API + scheduled extract</td></tr>
+          </table>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Technical Compliance Snapshot</h3>
+        <table>
+          <tr><td>Deployment Model</td><td>Cloud SaaS</td></tr>
+          <tr><td>Authentication</td><td>SSO via University Identity Management (SAML / OIDC)</td></tr>
+          <tr><td>Role-Based Access</td><td>~440 named users; hierarchy-scoped permissions</td></tr>
+          <tr><td>Security Certification</td><td>SOC 2 Type II (required)</td></tr>
+          <tr><td>Data Encryption</td><td>In-transit (TLS 1.2+) and at-rest</td></tr>
+          <tr><td>Audit Trails</td><td>Full user activity + configuration change logging</td></tr>
+          <tr><td>Export Formats</td><td>Excel, CSV, PDF</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="footer-note">
+      <strong>UH Mālama Resources · University of Hawaiʻi Resource Planning Platform</strong><br>
+      Proof of Concept for RFP No. 27-6284 · Stewardship through insight · All data is simulated
+    </div>
+  </div>
+</div>
+
+<script>
+const ORG_TREE = {"id": "UH-SYS", "name": "University of Hawai\u02bbi System", "level": 0, "children": [{"id": "MAN", "name": "UH M\u0101noa", "level": 1, "children": [{"id": "MAN-ENG", "name": "College of Engineering", "level": 2, "children": [{"id": "MAN-ENG-EE", "name": "Electrical Engineering", "level": 3, "children": [], "state_funds": 4200, "tuition": 3100, "research": 2800, "other_rev": 400, "total_rev": 10500, "personnel": 7200, "operating": 2100, "capital": 900, "total_exp": 10200}, {"id": "MAN-ENG-ME", "name": "Mechanical Engineering", "level": 3, "children": [], "state_funds": 3800, "tuition": 2900, "research": 2200, "other_rev": 350, "total_rev": 9250, "personnel": 6500, "operating": 1900, "capital": 800, "total_exp": 9200}, {"id": "MAN-ENG-CE", "name": "Civil & Environmental Eng", "level": 3, "children": [], "state_funds": 3500, "tuition": 2700, "research": 1900, "other_rev": 320, "total_rev": 8420, "personnel": 5900, "operating": 1700, "capital": 750, "total_exp": 8350}], "state_funds": 11500, "tuition": 8700, "research": 6900, "other_rev": 1070, "total_rev": 28170, "personnel": 19600, "operating": 5700, "capital": 2450, "total_exp": 27750}, {"id": "MAN-AS", "name": "College of Arts & Sciences", "level": 2, "children": [{"id": "MAN-AS-BIO", "name": "Biology", "level": 3, "children": [], "state_funds": 5100, "tuition": 4200, "research": 3500, "other_rev": 500, "total_rev": 13300, "personnel": 8800, "operating": 2500, "capital": 1100, "total_exp": 12400}, {"id": "MAN-AS-CHEM", "name": "Chemistry", "level": 3, "children": [], "state_funds": 2900, "tuition": 2400, "research": 2100, "other_rev": 280, "total_rev": 7680, "personnel": 5100, "operating": 1500, "capital": 650, "total_exp": 7250}, {"id": "MAN-AS-ENG", "name": "English", "level": 3, "children": [], "state_funds": 2200, "tuition": 3100, "research": 200, "other_rev": 400, "total_rev": 5900, "personnel": 4200, "operating": 1400, "capital": 400, "total_exp": 6000}, {"id": "MAN-AS-HIST", "name": "History", "level": 3, "children": [], "state_funds": 1800, "tuition": 2600, "research": 150, "other_rev": 350, "total_rev": 4900, "personnel": 3600, "operating": 1200, "capital": 350, "total_exp": 5150}], "state_funds": 12000, "tuition": 12300, "research": 5950, "other_rev": 1530, "total_rev": 31780, "personnel": 21700, "operating": 6600, "capital": 2500, "total_exp": 30800}, {"id": "MAN-BUS", "name": "Shidler College of Business", "level": 2, "children": [{"id": "MAN-BUS-ACC", "name": "Accounting", "level": 3, "children": [], "state_funds": 2100, "tuition": 3800, "research": 400, "other_rev": 450, "total_rev": 6750, "personnel": 4800, "operating": 1600, "capital": 500, "total_exp": 6900}, {"id": "MAN-BUS-MGT", "name": "Management", "level": 3, "children": [], "state_funds": 2400, "tuition": 4200, "research": 500, "other_rev": 500, "total_rev": 7600, "personnel": 5200, "operating": 1700, "capital": 550, "total_exp": 7450}], "state_funds": 4500, "tuition": 8000, "research": 900, "other_rev": 950, "total_rev": 14350, "personnel": 10000, "operating": 3300, "capital": 1050, "total_exp": 14350}, {"id": "MAN-SA", "name": "Student Affairs", "level": 2, "children": [{"id": "MAN-SA-COUN", "name": "Counseling Services", "level": 3, "children": [], "state_funds": 1800, "tuition": 2200, "research": 0, "other_rev": 300, "total_rev": 4300, "personnel": 3200, "operating": 900, "capital": 200, "total_exp": 4300}, {"id": "MAN-SA-REG", "name": "Registrar / Enrollment", "level": 3, "children": [], "state_funds": 1500, "tuition": 1800, "research": 0, "other_rev": 250, "total_rev": 3550, "personnel": 2800, "operating": 800, "capital": 180, "total_exp": 3780}], "state_funds": 3300, "tuition": 4000, "research": 0, "other_rev": 550, "total_rev": 7850, "personnel": 6000, "operating": 1700, "capital": 380, "total_exp": 8080}, {"id": "MAN-MED-COL", "name": "School of Medicine", "level": 2, "children": [{"id": "MAN-MED", "name": "John A. Burns School of Medicine", "level": 3, "children": [], "state_funds": 8500, "tuition": 1200, "research": 9200, "other_rev": 800, "total_rev": 19700, "personnel": 14200, "operating": 3800, "capital": 1600, "total_exp": 19600}], "state_funds": 8500, "tuition": 1200, "research": 9200, "other_rev": 800, "total_rev": 19700, "personnel": 14200, "operating": 3800, "capital": 1600, "total_exp": 19600}], "state_funds": 39800, "tuition": 34200, "research": 22950, "other_rev": 4900, "total_rev": 101850, "personnel": 71500, "operating": 21100, "capital": 7980, "total_exp": 100580, "type": "R1 Research", "students": 19200}, {"id": "HIL", "name": "UH Hilo", "level": 1, "children": [{"id": "HIL-NS", "name": "College of Natural & Health Sciences", "level": 2, "children": [{"id": "HIL-NS-BIO", "name": "Biology", "level": 3, "children": [], "state_funds": 1100, "tuition": 900, "research": 700, "other_rev": 120, "total_rev": 2820, "personnel": 1900, "operating": 550, "capital": 250, "total_exp": 2700}, {"id": "HIL-NS-CHEM", "name": "Chemistry", "level": 3, "children": [], "state_funds": 800, "tuition": 650, "research": 500, "other_rev": 90, "total_rev": 2040, "personnel": 1400, "operating": 400, "capital": 180, "total_exp": 1980}], "state_funds": 1900, "tuition": 1550, "research": 1200, "other_rev": 210, "total_rev": 4860, "personnel": 3300, "operating": 950, "capital": 430, "total_exp": 4680}, {"id": "HIL-CAS", "name": "College of Arts & Sciences", "level": 2, "children": [{"id": "HIL-CAS-ENG", "name": "English", "level": 3, "children": [], "state_funds": 500, "tuition": 700, "research": 40, "other_rev": 80, "total_rev": 1320, "personnel": 900, "operating": 280, "capital": 100, "total_exp": 1280}, {"id": "HIL-CAS-HIST", "name": "History", "level": 3, "children": [], "state_funds": 400, "tuition": 550, "research": 30, "other_rev": 70, "total_rev": 1050, "personnel": 750, "operating": 230, "capital": 90, "total_exp": 1070}], "state_funds": 900, "tuition": 1250, "research": 70, "other_rev": 150, "total_rev": 2370, "personnel": 1650, "operating": 510, "capital": 190, "total_exp": 2350}], "state_funds": 2800, "tuition": 2800, "research": 1270, "other_rev": 360, "total_rev": 7230, "personnel": 4950, "operating": 1460, "capital": 620, "total_exp": 7030, "type": "Comprehensive", "students": 3100}, {"id": "WOA", "name": "UH West O\u02bbahu", "level": 1, "children": [{"id": "WOA-COL", "name": "Academic Affairs", "level": 2, "children": [{"id": "WOA-BUS", "name": "Business Administration", "level": 3, "children": [], "state_funds": 1200, "tuition": 1400, "research": 50, "other_rev": 150, "total_rev": 2800, "personnel": 2000, "operating": 600, "capital": 250, "total_exp": 2850}, {"id": "WOA-EDU", "name": "Education", "level": 3, "children": [], "state_funds": 900, "tuition": 800, "research": 30, "other_rev": 100, "total_rev": 1830, "personnel": 1400, "operating": 420, "capital": 180, "total_exp": 2000}, {"id": "WOA-PUB", "name": "Public Administration", "level": 3, "children": [], "state_funds": 700, "tuition": 600, "research": 20, "other_rev": 80, "total_rev": 1400, "personnel": 1100, "operating": 320, "capital": 140, "total_exp": 1560}], "state_funds": 2800, "tuition": 2800, "research": 100, "other_rev": 330, "total_rev": 6030, "personnel": 4500, "operating": 1340, "capital": 570, "total_exp": 6410}], "state_funds": 2800, "tuition": 2800, "research": 100, "other_rev": 330, "total_rev": 6030, "personnel": 4500, "operating": 1340, "capital": 570, "total_exp": 6410, "type": "Baccalaureate", "students": 3000}, {"id": "HON", "name": "Honolulu CC", "level": 1, "children": [{"id": "HON-ACAD", "name": "Academic Affairs", "level": 2, "children": [{"id": "HON-INST", "name": "Instruction", "level": 3, "children": [], "state_funds": 1710, "tuition": 1520, "research": 38, "other_rev": 190, "total_rev": 3458, "personnel": 2660, "operating": 760, "capital": 285, "total_exp": 3705}], "state_funds": 1710, "tuition": 1520, "research": 38, "other_rev": 190, "total_rev": 3458, "personnel": 2660, "operating": 760, "capital": 285, "total_exp": 3705}, {"id": "HON-SUP", "name": "Student & Institutional Support", "level": 2, "children": [{"id": "HON-SS", "name": "Student Services", "level": 3, "children": [], "state_funds": 570, "tuition": 475, "research": 0, "other_rev": 76, "total_rev": 1121, "personnel": 855, "operating": 266, "capital": 76, "total_exp": 1197}, {"id": "HON-ADM", "name": "Campus Administration", "level": 3, "children": [], "state_funds": 475, "tuition": 190, "research": 0, "other_rev": 57, "total_rev": 722, "personnel": 665, "operating": 238, "capital": 95, "total_exp": 998}], "state_funds": 1045, "tuition": 665, "research": 0, "other_rev": 133, "total_rev": 1843, "personnel": 1520, "operating": 504, "capital": 171, "total_exp": 2195}], "state_funds": 2755, "tuition": 2185, "research": 38, "other_rev": 323, "total_rev": 5301, "personnel": 4180, "operating": 1264, "capital": 456, "total_exp": 5900, "type": "Community College", "students": 3800}, {"id": "KAP", "name": "Kapi\u02bbolani CC", "level": 1, "children": [{"id": "KAP-ACAD", "name": "Academic Affairs", "level": 2, "children": [{"id": "KAP-INST", "name": "Instruction", "level": 3, "children": [], "state_funds": 2430, "tuition": 2160, "research": 54, "other_rev": 270, "total_rev": 4914, "personnel": 3780, "operating": 1080, "capital": 405, "total_exp": 5265}], "state_funds": 2430, "tuition": 2160, "research": 54, "other_rev": 270, "total_rev": 4914, "personnel": 3780, "operating": 1080, "capital": 405, "total_exp": 5265}, {"id": "KAP-SUP", "name": "Student & Institutional Support", "level": 2, "children": [{"id": "KAP-SS", "name": "Student Services", "level": 3, "children": [], "state_funds": 810, "tuition": 675, "research": 0, "other_rev": 108, "total_rev": 1593, "personnel": 1215, "operating": 378, "capital": 108, "total_exp": 1701}, {"id": "KAP-ADM", "name": "Campus Administration", "level": 3, "children": [], "state_funds": 675, "tuition": 270, "research": 0, "other_rev": 81, "total_rev": 1026, "personnel": 945, "operating": 338, "capital": 135, "total_exp": 1418}], "state_funds": 1485, "tuition": 945, "research": 0, "other_rev": 189, "total_rev": 2619, "personnel": 2160, "operating": 716, "capital": 243, "total_exp": 3119}], "state_funds": 3915, "tuition": 3105, "research": 54, "other_rev": 459, "total_rev": 7533, "personnel": 5940, "operating": 1796, "capital": 648, "total_exp": 8384, "type": "Community College", "students": 6200}, {"id": "LEE", "name": "Leeward CC", "level": 1, "children": [{"id": "LEE-ACAD", "name": "Academic Affairs", "level": 2, "children": [{"id": "LEE-INST", "name": "Instruction", "level": 3, "children": [], "state_funds": 2340, "tuition": 2080, "research": 52, "other_rev": 260, "total_rev": 4732, "personnel": 3640, "operating": 1040, "capital": 390, "total_exp": 5070}], "state_funds": 2340, "tuition": 2080, "research": 52, "other_rev": 260, "total_rev": 4732, "personnel": 3640, "operating": 1040, "capital": 390, "total_exp": 5070}, {"id": "LEE-SUP", "name": "Student & Institutional Support", "level": 2, "children": [{"id": "LEE-SS", "name": "Student Services", "level": 3, "children": [], "state_funds": 780, "tuition": 650, "research": 0, "other_rev": 104, "total_rev": 1534, "personnel": 1170, "operating": 364, "capital": 104, "total_exp": 1638}, {"id": "LEE-ADM", "name": "Campus Administration", "level": 3, "children": [], "state_funds": 650, "tuition": 260, "research": 0, "other_rev": 78, "total_rev": 988, "personnel": 910, "operating": 325, "capital": 130, "total_exp": 1365}], "state_funds": 1430, "tuition": 910, "research": 0, "other_rev": 182, "total_rev": 2522, "personnel": 2080, "operating": 689, "capital": 234, "total_exp": 3003}], "state_funds": 3770, "tuition": 2990, "research": 52, "other_rev": 442, "total_rev": 7254, "personnel": 5720, "operating": 1729, "capital": 624, "total_exp": 8073, "type": "Community College", "students": 6100}, {"id": "WIN", "name": "Windward CC", "level": 1, "children": [{"id": "WIN-ACAD", "name": "Academic Affairs", "level": 2, "children": [{"id": "WIN-INST", "name": "Instruction", "level": 3, "children": [], "state_funds": 990, "tuition": 880, "research": 22, "other_rev": 110, "total_rev": 2002, "personnel": 1540, "operating": 440, "capital": 165, "total_exp": 2145}], "state_funds": 990, "tuition": 880, "research": 22, "other_rev": 110, "total_rev": 2002, "personnel": 1540, "operating": 440, "capital": 165, "total_exp": 2145}, {"id": "WIN-SUP", "name": "Student & Institutional Support", "level": 2, "children": [{"id": "WIN-SS", "name": "Student Services", "level": 3, "children": [], "state_funds": 330, "tuition": 275, "research": 0, "other_rev": 44, "total_rev": 649, "personnel": 495, "operating": 154, "capital": 44, "total_exp": 693}, {"id": "WIN-ADM", "name": "Campus Administration", "level": 3, "children": [], "state_funds": 275, "tuition": 110, "research": 0, "other_rev": 33, "total_rev": 418, "personnel": 385, "operating": 138, "capital": 55, "total_exp": 578}], "state_funds": 605, "tuition": 385, "research": 0, "other_rev": 77, "total_rev": 1067, "personnel": 880, "operating": 292, "capital": 99, "total_exp": 1271}], "state_funds": 1595, "tuition": 1265, "research": 22, "other_rev": 187, "total_rev": 3069, "personnel": 2420, "operating": 732, "capital": 264, "total_exp": 3416, "type": "Community College", "students": 2200}, {"id": "HAW", "name": "Hawai\u02bbi CC", "level": 1, "children": [{"id": "HAW-ACAD", "name": "Academic Affairs", "level": 2, "children": [{"id": "HAW-INST", "name": "Instruction", "level": 3, "children": [], "state_funds": 1080, "tuition": 960, "research": 24, "other_rev": 120, "total_rev": 2184, "personnel": 1680, "operating": 480, "capital": 180, "total_exp": 2340}], "state_funds": 1080, "tuition": 960, "research": 24, "other_rev": 120, "total_rev": 2184, "personnel": 1680, "operating": 480, "capital": 180, "total_exp": 2340}, {"id": "HAW-SUP", "name": "Student & Institutional Support", "level": 2, "children": [{"id": "HAW-SS", "name": "Student Services", "level": 3, "children": [], "state_funds": 360, "tuition": 300, "research": 0, "other_rev": 48, "total_rev": 708, "personnel": 540, "operating": 168, "capital": 48, "total_exp": 756}, {"id": "HAW-ADM", "name": "Campus Administration", "level": 3, "children": [], "state_funds": 300, "tuition": 120, "research": 0, "other_rev": 36, "total_rev": 456, "personnel": 420, "operating": 150, "capital": 60, "total_exp": 630}], "state_funds": 660, "tuition": 420, "research": 0, "other_rev": 84, "total_rev": 1164, "personnel": 960, "operating": 318, "capital": 108, "total_exp": 1386}], "state_funds": 1740, "tuition": 1380, "research": 24, "other_rev": 204, "total_rev": 3348, "personnel": 2640, "operating": 798, "capital": 288, "total_exp": 3726, "type": "Community College", "students": 2400}, {"id": "MAU", "name": "UH Maui College", "level": 1, "children": [{"id": "MAU-ACAD", "name": "Academic Affairs", "level": 2, "children": [{"id": "MAU-INST", "name": "Instruction", "level": 3, "children": [], "state_funds": 1260, "tuition": 1120, "research": 28, "other_rev": 140, "total_rev": 2548, "personnel": 1960, "operating": 560, "capital": 210, "total_exp": 2730}], "state_funds": 1260, "tuition": 1120, "research": 28, "other_rev": 140, "total_rev": 2548, "personnel": 1960, "operating": 560, "capital": 210, "total_exp": 2730}, {"id": "MAU-SUP", "name": "Student & Institutional Support", "level": 2, "children": [{"id": "MAU-SS", "name": "Student Services", "level": 3, "children": [], "state_funds": 420, "tuition": 350, "research": 0, "other_rev": 56, "total_rev": 826, "personnel": 630, "operating": 196, "capital": 56, "total_exp": 882}, {"id": "MAU-ADM", "name": "Campus Administration", "level": 3, "children": [], "state_funds": 350, "tuition": 140, "research": 0, "other_rev": 42, "total_rev": 532, "personnel": 490, "operating": 175, "capital": 70, "total_exp": 735}], "state_funds": 770, "tuition": 490, "research": 0, "other_rev": 98, "total_rev": 1358, "personnel": 1120, "operating": 371, "capital": 126, "total_exp": 1617}], "state_funds": 2030, "tuition": 1610, "research": 28, "other_rev": 238, "total_rev": 3906, "personnel": 3080, "operating": 931, "capital": 336, "total_exp": 4347, "type": "Community College", "students": 2800}, {"id": "KAU", "name": "Kaua\u02bbi CC", "level": 1, "children": [{"id": "KAU-ACAD", "name": "Academic Affairs", "level": 2, "children": [{"id": "KAU-INST", "name": "Instruction", "level": 3, "children": [], "state_funds": 720, "tuition": 640, "research": 16, "other_rev": 80, "total_rev": 1456, "personnel": 1120, "operating": 320, "capital": 120, "total_exp": 1560}], "state_funds": 720, "tuition": 640, "research": 16, "other_rev": 80, "total_rev": 1456, "personnel": 1120, "operating": 320, "capital": 120, "total_exp": 1560}, {"id": "KAU-SUP", "name": "Student & Institutional Support", "level": 2, "children": [{"id": "KAU-SS", "name": "Student Services", "level": 3, "children": [], "state_funds": 240, "tuition": 200, "research": 0, "other_rev": 32, "total_rev": 472, "personnel": 360, "operating": 112, "capital": 32, "total_exp": 504}, {"id": "KAU-ADM", "name": "Campus Administration", "level": 3, "children": [], "state_funds": 200, "tuition": 80, "research": 0, "other_rev": 24, "total_rev": 304, "personnel": 280, "operating": 100, "capital": 40, "total_exp": 420}], "state_funds": 440, "tuition": 280, "research": 0, "other_rev": 56, "total_rev": 776, "personnel": 640, "operating": 212, "capital": 72, "total_exp": 924}], "state_funds": 1160, "tuition": 920, "research": 16, "other_rev": 136, "total_rev": 2232, "personnel": 1760, "operating": 532, "capital": 192, "total_exp": 2484, "type": "Community College", "students": 1400}, {"id": "SYS", "name": "Systemwide Administration", "level": 1, "children": [{"id": "SYS-ADM", "name": "Systemwide Administration Units", "level": 2, "children": [{"id": "SYS-BUD", "name": "Budget Office", "level": 3, "children": [], "state_funds": 800, "tuition": 0, "research": 0, "other_rev": 50, "total_rev": 850, "personnel": 700, "operating": 200, "capital": 50, "total_exp": 950}, {"id": "SYS-ITS", "name": "Information Technology Services", "level": 3, "children": [], "state_funds": 2200, "tuition": 0, "research": 0, "other_rev": 300, "total_rev": 2500, "personnel": 2100, "operating": 800, "capital": 400, "total_exp": 3300}, {"id": "SYS-HR", "name": "Human Resources", "level": 3, "children": [], "state_funds": 900, "tuition": 0, "research": 0, "other_rev": 80, "total_rev": 980, "personnel": 850, "operating": 250, "capital": 60, "total_exp": 1160}, {"id": "SYS-OA", "name": "Office of the President / BOR Support", "level": 3, "children": [], "state_funds": 1100, "tuition": 0, "research": 0, "other_rev": 100, "total_rev": 1200, "personnel": 1000, "operating": 300, "capital": 80, "total_exp": 1380}], "state_funds": 5000, "tuition": 0, "research": 0, "other_rev": 530, "total_rev": 5530, "personnel": 4650, "operating": 1550, "capital": 590, "total_exp": 6790}], "state_funds": 5000, "tuition": 0, "research": 0, "other_rev": 530, "total_rev": 5530, "personnel": 4650, "operating": 1550, "capital": 590, "total_exp": 6790, "type": "System", "students": 0}], "state_funds": 67365, "tuition": 53255, "research": 24554, "other_rev": 8109, "total_rev": 153283, "personnel": 111340, "operating": 33232, "capital": 12568, "total_exp": 157140, "type": "System", "students": 50200};
+const POSITIONS = [{"campus": "UH M\u0101noa", "dept": "College of Engineering", "title": "Professor", "fte": 1.0, "salary": 142000, "fringe": 0.42, "fund": "General"}, {"campus": "UH M\u0101noa", "dept": "College of Engineering", "title": "Associate Professor", "fte": 1.0, "salary": 118000, "fringe": 0.42, "fund": "General"}, {"campus": "UH M\u0101noa", "dept": "College of Engineering", "title": "Assistant Professor", "fte": 1.0, "salary": 98000, "fringe": 0.42, "fund": "General"}, {"campus": "UH M\u0101noa", "dept": "College of Engineering", "title": "Lecturer", "fte": 0.5, "salary": 42000, "fringe": 0.28, "fund": "Tuition"}, {"campus": "UH M\u0101noa", "dept": "Arts & Sciences", "title": "Professor", "fte": 1.0, "salary": 135000, "fringe": 0.42, "fund": "General"}, {"campus": "UH M\u0101noa", "dept": "Arts & Sciences", "title": "Specialist", "fte": 1.0, "salary": 87000, "fringe": 0.38, "fund": "Research"}, {"campus": "UH M\u0101noa", "dept": "Student Affairs", "title": "Director", "fte": 1.0, "salary": 112000, "fringe": 0.4, "fund": "General"}, {"campus": "UH M\u0101noa", "dept": "Student Affairs", "title": "Counselor", "fte": 1.0, "salary": 68000, "fringe": 0.38, "fund": "Tuition"}, {"campus": "Systemwide Admin", "dept": "Budget Office", "title": "Budget Analyst", "fte": 1.0, "salary": 82000, "fringe": 0.4, "fund": "General"}, {"campus": "Systemwide Admin", "dept": "Budget Office", "title": "Senior Fiscal Administrator", "fte": 1.0, "salary": 98000, "fringe": 0.4, "fund": "General"}, {"campus": "UH Hilo", "dept": "Natural Sciences", "title": "Professor", "fte": 1.0, "salary": 128000, "fringe": 0.42, "fund": "General"}, {"campus": "UH Hilo", "dept": "Natural Sciences", "title": "Instructor", "fte": 1.0, "salary": 72000, "fringe": 0.38, "fund": "General"}, {"campus": "Kapi\u02bbolani CC", "dept": "Health Sciences", "title": "Instructor", "fte": 1.0, "salary": 78000, "fringe": 0.38, "fund": "General"}, {"campus": "Kapi\u02bbolani CC", "dept": "Health Sciences", "title": "Program Coordinator", "fte": 1.0, "salary": 71000, "fringe": 0.38, "fund": "Tuition"}];
+const WORKFLOWS = [{"id": "REQ-2026-0142", "campus": "UH M\u0101noa", "dept": "College of Engineering", "type": "Position Request", "amount": 118000, "status": "Pending Campus Review", "submitted": "2026-10-28", "priority": "High"}, {"id": "REQ-2026-0148", "campus": "UH Hilo", "dept": "Natural Sciences", "type": "Operating Increase", "amount": 85000, "status": "Pending System Review", "submitted": "2026-11-02", "priority": "Medium"}, {"id": "REQ-2026-0151", "campus": "Leeward CC", "dept": "Student Services", "type": "New Position", "amount": 72000, "status": "Pending Campus Review", "submitted": "2026-11-05", "priority": "High"}, {"id": "REQ-2026-0139", "campus": "UH West O\u02bbahu", "dept": "Business Admin", "type": "Capital Equipment", "amount": 210000, "status": "Approved \u2013 System", "submitted": "2026-10-15", "priority": "Medium"}, {"id": "REQ-2026-0155", "campus": "Kapi\u02bbolani CC", "dept": "Health Sciences", "type": "Fringe Adjustment", "amount": 34000, "status": "Draft", "submitted": "2026-11-08", "priority": "Low"}, {"id": "REQ-2026-0144", "campus": "Systemwide Admin", "dept": "ITS", "type": "Software License", "amount": 185000, "status": "Pending System Review", "submitted": "2026-10-30", "priority": "High"}];
+const YEARS = [2026, 2027, 2028, 2029, 2030, 2031];
+
+// Flat campus list for dashboard charts (level 1)
+const CAMPUSES = (ORG_TREE.children || []).map(function(c) {
+  return {
+    id: c.id, name: c.name, type: c.type || "", students: c.students || 0,
+    state_funds: c.state_funds, tuition: c.tuition, research: c.research, other_rev: c.other_rev,
+    total_rev: c.total_rev, personnel: c.personnel, operating: c.operating, capital: c.capital, total_exp: c.total_exp
+  };
+});
+const BASE_REV = ORG_TREE.total_rev;
+const BASE_EXP = ORG_TREE.total_exp;
+
+const LEVEL_LABELS = ["System", "Campus", "College", "Department"];
+const expanded = {}; // id -> bool
+const pathStack = []; // breadcrumb focus path of nodes
+let focusNode = ORG_TREE;
+
+const viewTitles = {
+  dashboard: "Executive Dashboard",
+  budget: "Budget Explorer — Org Hierarchy",
+  scenario: "Scenario Modeling & What-If Analysis",
+  labor: "Labor & Position Planning",
+  workflow: "Workflow & Approval Queue",
+  integration: "Integration & Technical Status"
+};
+
+function fmt(n) {
+  if (n == null) return "—";
+  if (Math.abs(n) >= 1000) return "$" + (n / 1000).toFixed(1) + "M";
+  return "$" + Math.round(n).toLocaleString() + "K";
+}
+function fmtFull(n) { return "$" + Math.round(n).toLocaleString(); }
+function fmtK(n) { return Math.round(n).toLocaleString(); }
+
+function getThemeColors() {
+  var dark = document.body.getAttribute("data-theme") === "dark";
+  return {
+    green: dark ? "#1a9b6c" : "#005A3C",
+    teal: dark ? "#2bb3c4" : "#007887",
+    gold: dark ? "#d4b56a" : "#C4A35A",
+    muted: dark ? "#8a9ba8" : "#94a3b8",
+    text: dark ? "#e8eef4" : "#1a1a1a",
+    grid: dark ? "#2a3544" : "#e2e8f0",
+    paper: "rgba(0,0,0,0)"
+  };
+}
+
+function switchView(view) {
+  document.querySelectorAll(".nav-item").forEach(function(i) { i.classList.remove("active"); });
+  var navEl = document.querySelector('.nav-item[data-view="' + view + '"]');
+  if (navEl) navEl.classList.add("active");
+  document.querySelectorAll(".view").forEach(function(v) { v.classList.remove("active"); });
+  var viewEl = document.getElementById("view-" + view);
+  if (viewEl) viewEl.classList.add("active");
+  document.getElementById("view-title").textContent = viewTitles[view] || view;
+}
+
+function setTheme(theme) {
+  document.body.setAttribute("data-theme", theme);
+  try { localStorage.setItem("malama-theme", theme); } catch (e) {}
+  var isDark = theme === "dark";
+  document.getElementById("theme-icon").textContent = isDark ? "☀️" : "🌙";
+  document.getElementById("theme-label").textContent = isDark ? "Light" : "Dark";
+  renderDashboard();
+  renderHierarchyChart();
+  updateScenario();
+}
+
+function toggleTheme() {
+  var current = document.body.getAttribute("data-theme") || "light";
+  setTheme(current === "light" ? "dark" : "light");
+}
+
+function findNode(root, id) {
+  if (root.id === id) return root;
+  var kids = root.children || [];
+  for (var i = 0; i < kids.length; i++) {
+    var f = findNode(kids[i], id);
+    if (f) return f;
+  }
+  return null;
+}
+
+function isExpanded(id) {
+  return !!expanded[id];
+}
+
+function setExpandLevel(maxLevel) {
+  function walk(n) {
+    if ((n.children || []).length) {
+      expanded[n.id] = n.level < maxLevel;
+      n.children.forEach(walk);
+    }
+  }
+  walk(ORG_TREE);
+  // Always show system expanded to at least campuses when collapsing
+  expanded[ORG_TREE.id] = true;
+  renderHierarchy();
+}
+
+function expandAll() {
+  function walk(n) {
+    if ((n.children || []).length) {
+      expanded[n.id] = true;
+      n.children.forEach(walk);
+    }
+  }
+  walk(ORG_TREE);
+  renderHierarchy();
+}
+
+function initExpanded() {
+  // Default: system + campuses expanded, colleges collapsed
+  expanded[ORG_TREE.id] = true;
+  (ORG_TREE.children || []).forEach(function(c) {
+    expanded[c.id] = true;
+  });
+}
+
+function renderBreadcrumb() {
+  var el = document.getElementById("tree-breadcrumb");
+  var parts = [];
+  parts.push('<button type="button" data-crumb="root">UH System</button>');
+  // Build path from root to focus by walking
+  var path = [];
+  function locate(node, targetId, trail) {
+    if (node.id === targetId) { path = trail.concat([node]); return true; }
+    var kids = node.children || [];
+    for (var i = 0; i < kids.length; i++) {
+      if (locate(kids[i], targetId, trail.concat([node]))) return true;
+    }
+    return false;
+  }
+  if (focusNode.id !== ORG_TREE.id) {
+    locate(ORG_TREE, focusNode.id, []);
+  } else {
+    path = [ORG_TREE];
+  }
+  path.forEach(function(n, idx) {
+    if (idx === 0) return;
+    parts.push('<span class="sep">›</span>');
+    if (idx === path.length - 1) {
+      parts.push('<span class="current">' + n.name + '</span>');
+    } else {
+      parts.push('<button type="button" data-crumb="' + n.id + '">' + n.name + '</button>');
+    }
+  });
+  el.innerHTML = parts.join(" ");
+  el.querySelectorAll("button[data-crumb]").forEach(function(btn) {
+    btn.addEventListener("click", function() {
+      var id = btn.getAttribute("data-crumb");
+      focusNode = id === "root" ? ORG_TREE : findNode(ORG_TREE, id);
+      // Ensure ancestors expanded
+      ensurePathExpanded(focusNode.id);
+      renderHierarchy();
+    });
+  });
+}
+
+function ensurePathExpanded(targetId) {
+  function walk(node, trail) {
+    if (node.id === targetId) {
+      trail.forEach(function(t) { expanded[t.id] = true; });
+      return true;
+    }
+    var kids = node.children || [];
+    for (var i = 0; i < kids.length; i++) {
+      if (walk(kids[i], trail.concat([node]))) return true;
+    }
+    return false;
+  }
+  walk(ORG_TREE, []);
+}
+
+function renderFocusPanel() {
+  var n = focusNode;
+  document.getElementById("focus-name").textContent =
+    n.name + " · " + (LEVEL_LABELS[n.level] || "") +
+    (n.type ? " · " + n.type : "") +
+    (n.students ? " · " + n.students.toLocaleString() + " students" : "");
+  document.getElementById("focus-kpis").innerHTML =
+    '<div class="fk">Total Revenue<strong>' + fmt(n.total_rev) + '</strong></div>' +
+    '<div class="fk">Total Expense<strong>' + fmt(n.total_exp) + '</strong></div>' +
+    '<div class="fk">State Funds<strong>' + fmt(n.state_funds) + '</strong></div>' +
+    '<div class="fk">Tuition<strong>' + fmt(n.tuition) + '</strong></div>' +
+    '<div class="fk">Research<strong>' + fmt(n.research) + '</strong></div>' +
+    '<div class="fk">Personnel<strong>' + fmt(n.personnel) + '</strong></div>';
+}
+
+function renderHierarchy() {
+  renderBreadcrumb();
+  renderFocusPanel();
+  var tbody = document.getElementById("hierarchy-tbody");
+  var rows = [];
+
+  function walk(node, depth) {
+    var hasKids = (node.children || []).length > 0;
+    var open = isExpanded(node.id);
+    var rowClass = "tree-row-" + (["system","campus","college","dept"][node.level] || "dept");
+    var indent = "";
+    for (var i = 0; i < depth; i++) indent += '<span class="tree-indent"></span>';
+    var toggle = hasKids
+      ? '<button type="button" class="tree-toggle" data-toggle="' + node.id + '">' + (open ? "−" : "+") + '</button>'
+      : '<button type="button" class="tree-toggle placeholder">·</button>';
+    var levelBadge = '<span class="level-badge l' + node.level + '">' + LEVEL_LABELS[node.level] + '</span>';
+    var nameBtn = '<button type="button" style="background:none;border:none;color:inherit;font:inherit;cursor:pointer;text-align:left;padding:0" data-focus="' + node.id + '">' + node.name + '</button>';
+
+    rows.push(
+      '<tr class="' + rowClass + '">' +
+      '<td><div class="tree-name-cell">' + indent + toggle + nameBtn + levelBadge + '</div></td>' +
+      '<td class="num">' + fmtK(node.state_funds) + '</td>' +
+      '<td class="num">' + fmtK(node.tuition) + '</td>' +
+      '<td class="num">' + fmtK(node.research) + '</td>' +
+      '<td class="num">' + fmtK(node.other_rev) + '</td>' +
+      '<td class="num"><strong>' + fmtK(node.total_rev) + '</strong></td>' +
+      '<td class="num">' + fmtK(node.personnel) + '</td>' +
+      '<td class="num">' + fmtK(node.operating) + '</td>' +
+      '<td class="num">' + fmtK(node.capital) + '</td>' +
+      '<td class="num"><strong>' + fmtK(node.total_exp) + '</strong></td>' +
+      '</tr>'
+    );
+
+    if (hasKids && open) {
+      node.children.forEach(function(ch) { walk(ch, depth + 1); });
+    }
+  }
+
+  walk(ORG_TREE, 0);
+  tbody.innerHTML = rows.join("");
+
+  tbody.querySelectorAll("[data-toggle]").forEach(function(btn) {
+    btn.addEventListener("click", function(e) {
+      e.stopPropagation();
+      var id = btn.getAttribute("data-toggle");
+      expanded[id] = !expanded[id];
+      renderHierarchy();
+    });
+  });
+  tbody.querySelectorAll("[data-focus]").forEach(function(btn) {
+    btn.addEventListener("click", function() {
+      var id = btn.getAttribute("data-focus");
+      focusNode = findNode(ORG_TREE, id);
+      ensurePathExpanded(id);
+      renderHierarchy();
+      renderHierarchyChart();
+    });
+  });
+
+  renderHierarchyChart();
+}
+
+function renderHierarchyChart() {
+  if (typeof Plotly === "undefined") return;
+  var n = focusNode;
+  var c = getThemeColors();
+  var kids = n.children || [];
+  if (kids.length === 0) {
+    // Show composition for leaf
+    Plotly.newPlot("chart-hierarchy", [{
+      values: [n.state_funds, n.tuition, n.research, n.other_rev],
+      labels: ["State", "Tuition", "Research", "Other"],
+      type: "pie", hole: 0.4,
+      marker: { colors: [c.green, c.teal, c.gold, c.muted] },
+      textinfo: "label+percent"
+    }], {
+      margin: { t: 20, b: 20, l: 20, r: 20 },
+      paper_bgcolor: c.paper, plot_bgcolor: c.paper, font: { color: c.text },
+      showlegend: true, legend: { font: { color: c.text } }
+    }, {responsive: true, displayModeBar: false});
+    return;
+  }
+  Plotly.newPlot("chart-hierarchy", [
+    { x: kids.map(function(k){ return k.name.length > 22 ? k.name.slice(0,20)+"…" : k.name; }),
+      y: kids.map(function(k){ return k.total_rev; }), name: "Revenue", type: "bar", marker: { color: c.green } },
+    { x: kids.map(function(k){ return k.name.length > 22 ? k.name.slice(0,20)+"…" : k.name; }),
+      y: kids.map(function(k){ return k.total_exp; }), name: "Expense", type: "bar", marker: { color: c.gold } }
+  ], {
+    barmode: "group",
+    margin: { t: 30, b: 90, l: 50, r: 20 },
+    yaxis: { title: "$ thousands", gridcolor: c.grid, color: c.text },
+    xaxis: { color: c.text, tickangle: -25 },
+    legend: { orientation: "h", y: 1.12, font: { color: c.text } },
+    paper_bgcolor: c.paper, plot_bgcolor: c.paper, font: { color: c.text }
+  }, {responsive: true, displayModeBar: false});
+}
+
+function renderDashboard() {
+  var totalRev = ORG_TREE.total_rev;
+  var state = ORG_TREE.state_funds;
+  var tuition = ORG_TREE.tuition;
+  var research = ORG_TREE.research;
+  var personnel = ORG_TREE.personnel;
+
+  document.getElementById("kpi-total-budget").textContent = fmt(totalRev);
+  document.getElementById("kpi-state").textContent = fmt(state);
+  document.getElementById("kpi-tuition").textContent = fmt(tuition);
+  document.getElementById("kpi-research").textContent = fmt(research);
+  document.getElementById("kpi-personnel").textContent = fmt(personnel);
+
+  var c = getThemeColors();
+  var sources = {
+    "State Funds": state,
+    "Tuition & Fees": tuition,
+    "Research": research,
+    "Other Revenue": ORG_TREE.other_rev
+  };
+
+  if (typeof Plotly !== "undefined") {
+    Plotly.newPlot("chart-rev-source", [{
+      values: Object.keys(sources).map(function(k){return sources[k];}),
+      labels: Object.keys(sources),
+      type: "pie", hole: 0.45,
+      marker: { colors: [c.green, c.teal, c.gold, c.muted] },
+      textinfo: "label+percent", textposition: "outside", textfont: { color: c.text }
+    }], {
+      margin: { t: 20, b: 20, l: 20, r: 20 }, showlegend: false,
+      paper_bgcolor: c.paper, plot_bgcolor: c.paper, font: { color: c.text }
+    }, {responsive: true, displayModeBar: false});
+
+    var sorted = CAMPUSES.slice().sort(function(a,b){return b.total_rev - a.total_rev;}).slice(0, 6);
+    Plotly.newPlot("chart-campus-budget", [{
+      x: sorted.map(function(b){ return b.name.replace("UH ", "").replace(" CC", ""); }),
+      y: sorted.map(function(b){ return b.total_rev; }),
+      type: "bar", marker: { color: c.green },
+      text: sorted.map(function(b){ return fmt(b.total_rev); }),
+      textposition: "outside", textfont: { color: c.text }
+    }], {
+      margin: { t: 30, b: 60, l: 50, r: 20 },
+      yaxis: { title: "$ thousands", gridcolor: c.grid, color: c.text },
+      xaxis: { color: c.text },
+      paper_bgcolor: c.paper, plot_bgcolor: c.paper, font: { color: c.text }
+    }, {responsive: true, displayModeBar: false});
+
+    var rev = [], exp = [];
+    var r = BASE_REV, e = BASE_EXP;
+    YEARS.forEach(function(y, i) {
+      if (i > 0) { r *= 1.025; e *= 1.028; }
+      rev.push(r); exp.push(e);
+    });
+    Plotly.newPlot("chart-multi-year", [
+      { x: YEARS, y: rev, name: "Revenue", type: "scatter", mode: "lines+markers", line: { color: c.green, width: 3 } },
+      { x: YEARS, y: exp, name: "Expense", type: "scatter", mode: "lines+markers", line: { color: c.gold, width: 3 } }
+    ], {
+      margin: { t: 30, b: 40, l: 60, r: 30 },
+      yaxis: { title: "$ thousands", gridcolor: c.grid, color: c.text },
+      xaxis: { color: c.text, gridcolor: c.grid },
+      legend: { orientation: "h", y: 1.12, font: { color: c.text } },
+      paper_bgcolor: c.paper, plot_bgcolor: c.paper, font: { color: c.text }
+    }, {responsive: true, displayModeBar: false});
+  }
+}
+
+function updateScenario() {
+  var enroll = parseFloat(document.getElementById("drv-enroll").value);
+  var tuition = parseFloat(document.getElementById("drv-tuition").value);
+  var state = parseFloat(document.getElementById("drv-state").value);
+  var fringe = parseFloat(document.getElementById("drv-fringe").value);
+  var personnel = parseFloat(document.getElementById("drv-personnel").value);
+  var operating = parseFloat(document.getElementById("drv-operating").value);
+
+  document.getElementById("val-enroll").textContent = enroll.toFixed(1);
+  document.getElementById("val-tuition").textContent = tuition.toFixed(1);
+  document.getElementById("val-state").textContent = state.toFixed(1);
+  document.getElementById("val-fringe").textContent = fringe.toFixed(1);
+  document.getElementById("val-personnel").textContent = personnel.toFixed(2);
+  document.getElementById("val-operating").textContent = operating.toFixed(2);
+
+  var revGrowth = (0.49 * state + 0.31 * (enroll + tuition) + 0.135 * 2.5 + 0.065 * 1.5) / 100;
+  var fringeImpact = (fringe - 41.5) * 0.15;
+  var expGrowth = (0.68 * (personnel + fringeImpact) + 0.22 * operating + 0.10 * 1.5) / 100;
+
+  var revSeries = [], expSeries = [];
+  var r = BASE_REV, e = BASE_EXP;
+  YEARS.forEach(function(y, i) {
+    if (i > 0) { r *= (1 + revGrowth); e *= (1 + expGrowth); }
+    revSeries.push(r); expSeries.push(e);
+  });
+
+  var finalRev = revSeries[revSeries.length - 1];
+  var finalExp = expSeries[expSeries.length - 1];
+  var gap = finalRev - finalExp;
+
+  document.getElementById("scen-rev").textContent = fmt(finalRev);
+  document.getElementById("scen-exp").textContent = fmt(finalExp);
+  var gapEl = document.getElementById("scen-gap");
+  gapEl.textContent = (gap >= 0 ? "+" : "") + fmt(gap);
+  gapEl.style.color = gap >= 0 ? "var(--success)" : "var(--danger)";
+
+  if (typeof Plotly !== "undefined") {
+    var c = getThemeColors();
+    Plotly.newPlot("chart-scenario", [
+      { x: YEARS, y: revSeries, name: "Projected Revenue", type: "scatter", mode: "lines+markers", line: { color: c.green, width: 3 } },
+      { x: YEARS, y: expSeries, name: "Projected Expense", type: "scatter", mode: "lines+markers", line: { color: c.gold, width: 3 } }
+    ], {
+      margin: { t: 30, b: 40, l: 60, r: 30 },
+      yaxis: { title: "$ thousands", gridcolor: c.grid, color: c.text },
+      xaxis: { color: c.text, gridcolor: c.grid },
+      legend: { orientation: "h", y: 1.12, font: { color: c.text } },
+      paper_bgcolor: c.paper, plot_bgcolor: c.paper, font: { color: c.text }
+    }, {responsive: true, displayModeBar: false});
+  }
+}
+
+function resetScenario() {
+  document.getElementById("drv-enroll").value = 1.5;
+  document.getElementById("drv-tuition").value = 2.5;
+  document.getElementById("drv-state").value = 1.5;
+  document.getElementById("drv-fringe").value = 41.5;
+  document.getElementById("drv-personnel").value = 2.75;
+  document.getElementById("drv-operating").value = 2.0;
+  updateScenario();
+}
+
+function saveScenario() {
+  alert("Scenario snapshot saved (simulated).\n\nIn a production system this would create a named scenario version that can be compared side-by-side with other scenarios and shared with campus budget offices.");
+}
+
+function renderLabor() {
+  var totalSal = 0, totalFringe = 0;
+  var tbody = document.querySelector("#labor-table tbody");
+  tbody.innerHTML = POSITIONS.map(function(p) {
+    var fringeAmt = Math.round(p.salary * p.fringe * p.fte);
+    var total = Math.round(p.salary * p.fte) + fringeAmt;
+    totalSal += Math.round(p.salary * p.fte);
+    totalFringe += fringeAmt;
+    return "<tr>" +
+      "<td>" + p.campus + "</td><td>" + p.dept + "</td><td>" + p.title + "</td>" +
+      "<td class='num'>" + p.fte.toFixed(1) + "</td>" +
+      "<td class='num'>" + fmtFull(p.salary) + "</td>" +
+      "<td class='num'>" + (p.fringe * 100).toFixed(0) + "%</td>" +
+      "<td class='num'>" + fmtFull(fringeAmt) + "</td>" +
+      "<td class='num'><strong>" + fmtFull(total) + "</strong></td>" +
+      "<td><span class='tag'>" + p.fund + "</span></td></tr>";
+  }).join("");
+  document.getElementById("labor-salary").textContent = fmtFull(totalSal);
+  document.getElementById("labor-fringe").textContent = fmtFull(totalFringe);
+  document.getElementById("labor-total").textContent = fmtFull(totalSal + totalFringe);
+}
+
+function renderWorkflow() {
+  var tbody = document.querySelector("#workflow-table tbody");
+  tbody.innerHTML = WORKFLOWS.map(function(w) {
+    var statusClass = "status-pending";
+    if (w.status.indexOf("Approved") !== -1) statusClass = "status-approved";
+    else if (w.status === "Draft") statusClass = "status-draft";
+    else if (w.status.indexOf("System") !== -1) statusClass = "status-review";
+    var priClass = "priority-" + w.priority.toLowerCase();
+    return "<tr>" +
+      "<td><strong>" + w.id + "</strong></td><td>" + w.campus + "</td><td>" + w.dept + "</td><td>" + w.type + "</td>" +
+      "<td class='num'>" + fmtFull(w.amount) + "</td>" +
+      "<td><span class='status " + statusClass + "'>" + w.status + "</span></td>" +
+      "<td>" + w.submitted + "</td><td class='" + priClass + "'>" + w.priority + "</td></tr>";
+  }).join("");
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+  document.querySelectorAll(".nav-item").forEach(function(item) {
+    item.addEventListener("click", function() {
+      switchView(item.getAttribute("data-view"));
+    });
+  });
+  document.getElementById("theme-toggle").addEventListener("click", toggleTheme);
+  var saved = null;
+  try { saved = localStorage.getItem("malama-theme"); } catch (e) {}
+  if (saved === "dark" || saved === "light") {
+    document.body.setAttribute("data-theme", saved);
+    var isDark = saved === "dark";
+    document.getElementById("theme-icon").textContent = isDark ? "☀️" : "🌙";
+    document.getElementById("theme-label").textContent = isDark ? "Light" : "Dark";
+  }
+
+  ["drv-enroll","drv-tuition","drv-state","drv-fringe","drv-personnel","drv-operating"].forEach(function(id) {
+    document.getElementById(id).addEventListener("input", updateScenario);
+  });
+  document.getElementById("btn-reset").addEventListener("click", resetScenario);
+  document.getElementById("btn-save").addEventListener("click", saveScenario);
+  document.getElementById("btn-expand-all").addEventListener("click", expandAll);
+  document.getElementById("btn-collapse-all").addEventListener("click", function() { setExpandLevel(1); });
+  document.getElementById("btn-expand-colleges").addEventListener("click", function() { setExpandLevel(2); });
+
+  initExpanded();
+  renderDashboard();
+  renderHierarchy();
+  updateScenario();
+  renderLabor();
+  renderWorkflow();
+});
+</script>
+</body>
+</html>
